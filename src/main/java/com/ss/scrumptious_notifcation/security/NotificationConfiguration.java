@@ -1,5 +1,8 @@
 package com.ss.scrumptious_notifcation.security;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,21 +15,24 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 
 @Configuration
-@PropertySource("classpath:aws-config.properties")
 public class NotificationConfiguration {
 
 	// The IAM access key.
-    @Value("${amazon.sns.access.key}")
-    private String accessKey; 
-    
- // The IAM secret key.
-    @Value("${amazon.sns.secret.key}")
+    @Value("${AWS_SECRET_ACCESS_KEY}")
     private String secretKey;
-    
- // The bucket region name.
-    @Value("${amazon.sns.region.name}")
-    private String s3RegionName;
-    
+
+ // The IAM secret key.
+    @Value("${AWS_ACCESS_KEY_ID}")
+    private String accessKey;
+
+ // The sns region name.
+    @Value("amazon.sns.region")
+    private String SNSRegionName;
+
+    // The ses region name.
+    @Value("${amazon.ses.region}")
+    private String SESRegionName;
+
     @Bean
     public AmazonSNS getAmazonSNSClient() {
     	//LOG.info("Access: " + accessKey + " Secret: " + secretKey);
@@ -35,7 +41,14 @@ public class NotificationConfiguration {
         return AmazonSNSClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(basicAWSCredentials))
-                .withRegion(s3RegionName)
+                .withRegion(SNSRegionName)
                 .build();
+    }
+
+    @Bean
+    public AmazonSimpleEmailService getAmazonSESClient() {
+        final AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+        return AmazonSimpleEmailServiceClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials)).withRegion(SESRegionName).build();
     }
 }
