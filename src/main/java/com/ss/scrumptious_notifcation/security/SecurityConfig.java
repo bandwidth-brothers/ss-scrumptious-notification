@@ -34,13 +34,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/v3/api-docs/**",
             "/swagger-ui/**",
         // other public endpoints of your API may be appended to this array
-        "/h2-console/*"
+            "/h2-console/*",
+            "/notification/health"
     };
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-    	//web.ignoring().antMatchers(AUTH_WHITELIST);
-    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -50,12 +47,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         		.and()
         		.addFilter(new JwtAuthenticationVerificationFilter(authenticationManager(), securityConstants))
         		.authorizeRequests()
-                .antMatchers("/h2-console/*").permitAll()
-
-                .antMatchers("/owners/register/**").permitAll()
-                .antMatchers("/admins/register/**").permitAll()
-
-                //.antMatchers("/test").permitAll()
                 .antMatchers(AUTH_WHITELIST).permitAll()
                 .anyRequest().authenticated();
     }
